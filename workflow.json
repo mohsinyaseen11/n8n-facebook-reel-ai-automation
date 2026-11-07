@@ -1,0 +1,477 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        -240
+      ],
+      "id": "7a9dc597-20a8-4457-a652-8c7b6d0660fb",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Product Content Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13vYxdw9x__faFQXR5TnNS-o3b3YG6LqTy5HymBB3fZk/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Posted",
+              "lookupValue": "NO"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -608,
+        -240
+      ],
+      "id": "89eb9ad2-ebb5-4dd4-b025-ae0ab0456858",
+      "name": "Get row(s) in sheet"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-sonnet-5-5",
+          "mode": "list",
+          "cachedResultName": "claude-sonnet-5-5"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Create the full copy package for a 10-second vertical (9:16) Facebook Reel ad for this product.\n\nProduct Title: {{ $json.Title }}\nPrice: PKR {{ $json.Price }}\nProduct Link: {{ $json.Product_Link }}\n\nThe video has 5 scenes of about 2 seconds each. The brand logo, website and contact details are already placed in the video, so never put a website or phone number in any on-screen text.\nScene 1 (0-2s): full photo with scroll-stopping hook\nScene 2 (2-4s): close-up on neckline/embroidery\nScene 3 (4-6s): close-up on dupatta/fabric detail\nScene 4 (6-8s): full photo, product name and price\nScene 5 (8-10s): call to action\n\nRules:\n- Return ONLY the JSON object. No markdown, no code fences, no text before or after it.\n- Never use double quotes inside values. Use \\n for line breaks inside caption. No real line breaks inside any value.\n- On-screen fields (hook, detail_1, detail_2, product_name, price_text, cta_text) must be plain Latin text: no emojis, no hashtags, within the limits below.\n- Use only facts present in the Product Title and Price. Do not invent fabric, colour, discounts or delivery claims.\n\nReturn exactly this JSON structure:\n\n{\n  \"hook\": \"max 4 words and 22 characters, curiosity or desire driven\",\n  \"detail_1\": \"max 4 words and 24 characters, about neckline or embroidery, from title facts only\",\n  \"detail_2\": \"max 4 words and 24 characters, about dupatta or fabric feel, from title facts only\",\n  \"product_name\": \"max 5 words and 30 characters, clean product name from the title\",\n  \"price_text\": \"formatted like Rs. 6,990 with comma separators, always starting with Rs.\",\n  \"cta_text\": \"max 3 words, e.g. Order Now\",\n  \"caption\": \"3-4 short lines in natural Roman Urdu mixed with English, separated by \\n. Line 1 hooks. Middle lines highlight design and quality. Last line has the price. Emojis allowed, max 4.\",\n  \"cta_caption\": \"1-2 lines asking the viewer to order, include the Product Link exactly as given\",\n  \"hashtags\": \"12 hashtags in one string separated by spaces: mix of Pakistani women's wear, new arrival, embroidered suits, online shopping Pakistan, and the Demo Fashion Store brand\"\n}"
+            }
+          ]
+        },
+        "options": {
+          "system": "You are the senior social media strategist and copywriter for \"Demo Fashion Store\", a Pakistani women's wear brand. You write Facebook/Instagram Reel ad copy that stops the scroll, builds desire, and drives orders.  Rules you always follow: - On-screen text is in Roman Urdu or English, in Latin script only. No Urdu script, no emojis, no hashtags in on-screen text (video fonts cannot render them). - Emojis are allowed only in caption and cta_caption. - Use ONLY facts given in the product data (title, price, link). Never invent fabric, material, colour, discounts, delivery promises, or sizes that are not provided. If the title mentions embroidery or fabric, you may use it. - The brand logo, website and contact details are already placed in the video. Never put a website or phone number in any on-screen text. - Tone: elegant, confident, warm. No cheap hype, no all-caps shouting, no spammy phrases. - On-screen text must be very short because each scene lasts only 2 seconds. Respect both the word limits and the character limits exactly. - Never use double quotes inside any value, and never put real line breaks inside a value. Use \\n where a line break is needed. - Output ONLY valid JSON. No markdown, no code fences, no explanation before or after.",
+          "maxTokens": 3000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        -240
+      ],
+      "id": "5603235a-4b24-423a-9145-3df835749307",
+      "name": "Message a model"
+    },
+    {
+      "parameters": {
+        "templateId": {
+          "__rl": true,
+          "value": "YOUR_CREATOMATE_TEMPLATE_ID",
+          "mode": "list",
+          "cachedResultName": "Your Reel Template"
+        },
+        "modifications": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Image-1.source": "={{ $('Get row(s) in sheet').item.json.Image_URL }}",
+            "Image-2.source": "={{ $('Get row(s) in sheet').item.json.Image_URL }}",
+            "Image-3.source": "={{ $('Get row(s) in sheet').item.json.Image_URL }}",
+            "Image-4.source": "={{ $('Get row(s) in sheet').item.json.Image_URL }}",
+            "Text-1.text": "={{ $json.hook }}",
+            "Text-2.text": "={{ $json.detail_1 }}",
+            "Text-3.text": "={{ $json.detail_2 }}",
+            "Text-4.text": "={{ $json.product_name }}",
+            "Text-6.text": "={{ $json.cta_text }}",
+            "Text-5.text": "={{ $json.price_text }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Image-1.source",
+              "displayName": "Image-1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            },
+            {
+              "id": "Image-2.source",
+              "displayName": "Image-2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            },
+            {
+              "id": "Image-3.source",
+              "displayName": "Image-3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            },
+            {
+              "id": "Image-4.source",
+              "displayName": "Image-4",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            },
+            {
+              "id": "Text-1.text",
+              "displayName": "Text-1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            },
+            {
+              "id": "Text-2.text",
+              "displayName": "Text-2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            },
+            {
+              "id": "Text-3.text",
+              "displayName": "Text-3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            },
+            {
+              "id": "Text-4.text",
+              "displayName": "Text-4",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            },
+            {
+              "id": "Text-6.text",
+              "displayName": "Text-6",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            },
+            {
+              "id": "Text-5.text",
+              "displayName": "Text-5",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false,
+              "required": false,
+              "display": true,
+              "type": "string",
+              "removed": false,
+              "readOnly": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "@creatomate/n8n-nodes-creatomate.creatomate",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -240
+      ],
+      "id": "8d3418a2-32e2-4256-a2e4-c79f589afaee",
+      "name": "Create a render"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\n// 1) Claude ka text dhoondo\nlet raw = '';\nif (Array.isArray(data.content)) {\n  raw = data.content\n    .filter(c => typeof c.text === 'string')\n    .map(c => c.text)\n    .join('');\n} else if (typeof data.text === 'string') {\n  raw = data.text;\n} else if (typeof data.output === 'string') {\n  raw = data.output;\n}\nif (!raw) {\n  throw new Error('Claude ka text nahi mila. Output ki keys: ' + Object.keys(data).join(', '));\n}\n\n// 2) Sirf { se } tak JSON nikalo\nconst start = raw.indexOf('{');\nconst end = raw.lastIndexOf('}');\nif (start === -1 || end === -1) {\n  throw new Error('JSON nahi mila. Claude ka jawab: ' + raw.slice(0, 300));\n}\nconst jsonText = raw.slice(start, end + 1);\n\n// 3) Values ke andar asli line break ho to usay \\n bana do\nlet fixed = '';\nlet inString = false;\nlet escaped = false;\nfor (const ch of jsonText) {\n  if (inString) {\n    if (escaped) { fixed += ch; escaped = false; }\n    else if (ch === '\\\\') { fixed += ch; escaped = true; }\n    else if (ch === '\"') { fixed += ch; inString = false; }\n    else if (ch === '\\n') { fixed += '\\\\n'; }\n    else if (ch === '\\r') { }\n    else if (ch === '\\t') { fixed += ' '; }\n    else { fixed += ch; }\n  } else {\n    if (ch === '\"') inString = true;\n    fixed += ch;\n  }\n}\n\nlet out;\ntry {\n  out = JSON.parse(fixed);\n} catch (e) {\n  throw new Error('JSON parse fail: ' + e.message + ' | ' + fixed.slice(0, 300));\n}\n\n// 4) Video ke text ko box ke andar rakhne ke liye safety trim\nconst cut = (s, n) => {\n  s = String(s || '').trim();\n  if (s.length <= n) return s;\n  return s.slice(0, n).replace(/\\s+\\S*$/, '').trim();\n};\nout.hook = cut(out.hook, 22);\nout.detail_1 = cut(out.detail_1, 24);\nout.detail_2 = cut(out.detail_2, 24);\nout.product_name = cut(out.product_name, 30);\nout.cta_text = cut(out.cta_text, 20);\nout.price_text = String(out.price_text || '').trim();\n\nreturn [{ json: out }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        -240
+      ],
+      "id": "15ab043f-aac0-4323-9c71-fa1a20e9eac6",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9d7ba634-18a0-4d41-b29c-59cae6469f6c",
+              "name": "video_url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "4a13751c-32e8-456d-a7f0-0d339d36e285",
+              "name": "description",
+              "value": "={{ $('Code in JavaScript').item.json.caption }}\n{{ $('Code in JavaScript').item.json.cta_caption }}\n{{ $('Code in JavaScript').item.json.hashtags }}",
+              "type": "string"
+            },
+            {
+              "id": "953709c9-ec10-40dd-9ff3-9ed506ebb011",
+              "name": "row_number",
+              "value": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+              "type": "number"
+            },
+            {
+              "id": "2638a91a-5c09-4277-aec0-05bbfbfd9242",
+              "name": "Poduct id",
+              "value": "={{ $('Get row(s) in sheet').item.json.Product_ID }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        240,
+        -240
+      ],
+      "id": "d1ce4270-90c8-4bc9-b7b6-d48a896346cb",
+      "name": "Facebook Data"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Facebook _reel  {{ $json.row_number }}",
+        "message": "=Video_Link :{{ $json.video_url }}\nDescription:{{ $json.description }}\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        464,
+        -240
+      ],
+      "id": "d72d86d1-55f9-448c-a74a-5aa1fbda41af",
+      "name": "Create a draft"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Product Content Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13vYxdw9x__faFQXR5TnNS-o3b3YG6LqTy5HymBB3fZk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Product_ID": "={{ $('Facebook Data').item.json['Poduct id'] }}",
+            "Posted": "YES"
+          },
+          "matchingColumns": [
+            "Product_ID"
+          ],
+          "schema": [
+            {
+              "id": "Product_ID",
+              "displayName": "Product_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price",
+              "displayName": "Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Image_URL",
+              "displayName": "Image_URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product_Link",
+              "displayName": "Product_Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Posted",
+              "displayName": "Posted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        688,
+        -240
+      ],
+      "id": "914adba6-bc5f-482d-8dac-1d9e91bf8748",
+      "name": "Append or update row in sheet"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a render": {
+      "main": [
+        [
+          {
+            "node": "Facebook Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a render",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Facebook Data": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a draft": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {}
+}
